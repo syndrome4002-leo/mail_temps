@@ -14,7 +14,7 @@
     .card .label { display:flex; align-items:center; justify-content:space-between; padding:14px 18px; border-bottom:1px solid #eaecf0; }
     .card .label b { font-size:14px; }
     .card .label a { font-size:12px; color:#2563eb; text-decoration:none; }
-    iframe { width:100%; height:760px; border:0; display:block; background:#f2f4f7; }
+    iframe { width:100%; height:760px; border:0; display:block; background:#f2f4f7; overflow:hidden; }
   </style>
 </head>
 <body>
@@ -25,24 +25,49 @@
   <div class="grid">
     <div class="card">
       <div class="label"><b>1 · Account creation / Welcome</b><a href="01-welcome.preview.html" target="_blank">Open ↗</a></div>
-      <iframe src="01-welcome.preview.html" title="Welcome"></iframe>
+      <iframe src="01-welcome.preview.html" title="Welcome" scrolling="no" onload="fit(this)"></iframe>
     </div>
     <div class="card">
       <div class="label"><b>2 · Purchase receipt</b><a href="02-receipt.preview.html" target="_blank">Open ↗</a></div>
-      <iframe src="02-receipt.preview.html" title="Receipt"></iframe>
+      <iframe src="02-receipt.preview.html" title="Receipt" scrolling="no" onload="fit(this)"></iframe>
     </div>
     <div class="card">
       <div class="label"><b>3 · Buyback / credit confirmation</b><a href="03-buyback-credit.preview.html" target="_blank">Open ↗</a></div>
-      <iframe src="03-buyback-credit.preview.html" title="Buyback"></iframe>
+      <iframe src="03-buyback-credit.preview.html" title="Buyback" scrolling="no" onload="fit(this)"></iframe>
     </div>
     <div class="card">
       <div class="label"><b>4 · Shipping / delivery confirmation</b><a href="04-shipping.preview.html" target="_blank">Open ↗</a></div>
-      <iframe src="04-shipping.preview.html" title="Shipping"></iframe>
+      <iframe src="04-shipping.preview.html" title="Shipping" scrolling="no" onload="fit(this)"></iframe>
     </div>
     <div class="card">
       <div class="label"><b>5 · Login OTP + magic link</b><a href="05-login-otp.preview.html" target="_blank">Open ↗</a></div>
-      <iframe src="05-login-otp.preview.html" title="OTP"></iframe>
+      <iframe src="05-login-otp.preview.html" title="OTP" scrolling="no" onload="fit(this)"></iframe>
     </div>
   </div>
+  <script>
+    // Grow each iframe to its full content height so the whole email shows — no inner scrollbar.
+    function fit(f) {
+      try {
+        var doc = f.contentDocument || f.contentWindow.document;
+        var h = Math.max(
+          doc.body.scrollHeight, doc.documentElement.scrollHeight,
+          doc.body.offsetHeight, doc.documentElement.offsetHeight
+        );
+        // +24 safety buffer absorbs late font/emoji reflow that can leave the last
+        // rows clipped (notably the taller buyback & shipping emails).
+        f.style.height = (h + 24) + 'px';
+      } catch (e) { /* cross-origin (e.g. opened via file:// in some browsers) — leave default height */ }
+    }
+    function fitAll() { document.querySelectorAll('iframe').forEach(fit); }
+    // Re-measure after first paint, after a short delay, and once everything (fonts) has loaded.
+    document.querySelectorAll('iframe').forEach(function (f) {
+      f.addEventListener('load', function () {
+        fit(f);
+        setTimeout(function () { fit(f); }, 200);
+      });
+    });
+    window.addEventListener('load', fitAll);
+    window.addEventListener('resize', fitAll);
+  </script>
 </body>
 </html>
