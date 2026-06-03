@@ -45,17 +45,17 @@
     </div>
   </div>
   <script>
-    // Size each iframe to its email's TRUE content height (no inner scroll, no empty gap).
-    // The emails use `html, body { height:100% }`, so the body stretches to the iframe's
-    // current height and over-reports. Fix: collapse the frame first, then measure the
-    // content's natural height from the actual email container.
+    // Size each iframe to its email's TRUE content height (no inner scroll, no leftover strip).
+    // The emails use `html, body { height:100% !important }`, which makes the body stretch to
+    // the iframe and leaves blank area below the content. Fix: force the body to wrap its
+    // content (height:auto, overriding the !important), then size the frame to exactly that.
     function fit(f) {
       try {
-        f.style.height = '0px';                       // collapse so body can't inflate the measurement
         var doc = f.contentDocument || f.contentWindow.document;
-        var content = doc.querySelector('center') || doc.body;
-        var h = content.scrollHeight || content.offsetHeight;
-        f.style.height = (h + 2) + 'px';
+        doc.documentElement.style.setProperty('height', 'auto', 'important');
+        doc.body.style.setProperty('height', 'auto', 'important');
+        var h = Math.max(doc.body.scrollHeight, doc.body.offsetHeight);
+        f.style.height = h + 'px';
       } catch (e) { f.style.height = '760px'; }        // cross-origin fallback
     }
     function fitAll() { document.querySelectorAll('iframe').forEach(fit); }
